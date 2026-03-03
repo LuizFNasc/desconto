@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seu Cupom Exclusivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f4ef;
+      --card: #fff;
+      --accent: #e8431a;
+      --accent-dark: #c23512;
+      --text: #1a1a1a;
+      --muted: #888;
+      --border: #e8e4de;
+      --green: #1a9e5c;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .badge span { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.7); display: inline-block; animation: blink 1.5s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Coupon card */
+    .coupon-card {
+      background: var(--card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 0 #ddd, 0 12px 40px rgba(0,0,0,0.08);
+    }
+
+    /* Coupon top */
+    .coupon-top {
+      background: var(--accent);
+      padding: 36px 36px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coupon-top::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .coupon-top::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: -40px;
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .discount-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .discount-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .discount-value span {
+      font-size: 2rem;
+      vertical-align: super;
+      letter-spacing: 0;
+    }
+
+    .discount-sub {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Dashed divider */
+    .dear-divider {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .dear-divider::before, .dear-divider::after {
+      content: '';
+      width: 24px; height: 24px;
+      background: var(--bg);
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .dashed-line {
+      flex: 1;
+      border-top: 2px dashed var(--border);
+      margin: 0 4px;
+    }
+
+    /* Coupon bottom */
+    .coupon-bottom {
+      padding: 28px 32px 32px;
+    }
+
+    .coupon-bottom h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .coupon-bottom .sub {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .coupon-bottom .sub span { color: #555; }
+
+    /* Fields */
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+
+    .field label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .field label .req { color: var(--accent); margin-left: 2px; }
+    .field label .opt { color: #bbb; font-weight: 400; text-transform: none; margin-left: 4px; }
+
+    .field input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input::placeholder { color: #bbb; }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,67,26,0.1); }
+    .field input.invalid { border-color: #e05; }
+
+    .field-error { font-size: 0.75rem; color: #e05; display: none; }
+    .field-error.show { display: block; }
+
+    /* Validity */
+    .validity {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+      padding: 10px 14px;
+      background: #fff8f0;
+      border-radius: 8px;
+      border: 1px solid #fde8d8;
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,67,26,0.25); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .privacy { font-size: 0.74rem; color: var(--muted); text-align: center; margin-top: 12px; }
+
+    /* Success */
+    .success-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 8px 0 4px;
+      gap: 12px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .success-wrap.show { display: flex; }
+
+    .success-icon {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: #e8f9f1;
+      border: 2px solid #b8ecd5;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .success-wrap h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--green); }
+    .success-wrap p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    .coupon-code-box {
+      background: var(--bg);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px 24px;
+      width: 100%;
+    }
+
+    .coupon-code-box .code-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .coupon-code-box .code { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--accent); letter-spacing: 0.1em; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="badge"><span></span> Oferta exclusiva</div>
+
+  <div class="coupon-card">
+    <!-- Top -->
+    <div class="coupon-top">
+      <div class="discount-label">Desconto especial de</div>
+      <div class="discount-value"><span>%</span>5 <span style="font-size:1.5rem;vertical-align:middle;">OFF</span></div>
+      <div class="discount-sub">Válido até 31/03/2026</div>
+    </div>
+
+    <!-- Dashed divider -->
+    <div class="dear-divider">
+      <div class="dashed-line"></div>
+    </div>
+
+    <!-- Bottom form -->
+    <div class="coupon-bottom">
+      <h2>🎁 Resgatar meu cupom</h2>
+      <p class="sub" id="subtitle">Preencha seus dados para receber o cupom exclusivo.<br><span>📍 Sua localização será usada para fins desta campanha.</span></p>
+
+      <div id="formFields">
+        <div class="field">
+          <label>Nome completo <span class="req">*</span></label>
+          <input type="text" id="nome" placeholder="Seu nome completo" />
+          <span class="field-error" id="nomeError">Por favor, informe seu nome.</span>
+        </div>
+        <div class="field">
+          <label>Email <span class="opt">(opcional)</span></label>
+          <input type="email" id="email" placeholder="seu@email.com" />
+        </div>
+
+        <div class="validity">
+          ⏳ Cupom válido até <strong>31/03/2026</strong> — não perca!
+        </div>
+
+        <button class="btn" id="btn" onclick="resgatar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Quero meu desconto!
+        </button>
+
+        <p class="privacy">🔒 Dados protegidos pela LGPD</p>
+      </div>
+
+      <!-- Success -->
+      <div class="success-wrap" id="successWrap">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#1a9e5c" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Cupom gerado!</h3>
+        <p>Parabéns, <strong id="nomeConfirmado"></strong>!<br>Use o código abaixo na sua próxima compra:</p>
+        <div class="coupon-code-box">
+          <div class="code-label">Seu cupom</div>
+          <div class="code" id="codigoGerado"></div>
+        </div>
+        <p style="font-size:0.78rem;color:#bbb;">Válido até 31/03/2026 · 5% de desconto</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function gerarCodigo(nome) {
+    const prefixo = nome.trim().split(' ')[0].toUpperCase().slice(0, 4);
+    const num = Math.floor(1000 + Math.random() * 9000);
+    return `${prefixo}${num}OFF5`;
+  }
+
+  function resgatar() {
+    const nomeInput = document.getElementById('nome');
+    const emailInput = document.getElementById('email');
+    const btn = document.getElementById('btn');
+    const nomeError = document.getElementById('nomeError');
+
+    if (!nomeInput.value.trim()) {
+      nomeInput.classList.add('invalid');
+      nomeError.classList.add('show');
+      nomeInput.focus();
+      return;
+    }
+
+    nomeInput.classList.remove('invalid');
+    nomeError.classList.remove('show');
+
+    btn.disabled = true;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Gerando cupom...`;
+
+    const nome = nomeInput.value.trim();
+    const email = emailInput.value.trim();
+    const codigo = gerarCodigo(nome);
+
+    if (!navigator.geolocation) {
+      enviar(nome, email, null, null, null, codigo);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        enviar(nome, email,
+          pos.coords.latitude.toFixed(6),
+          pos.coords.longitude.toFixed(6),
+          Math.round(pos.coords.accuracy),
+          codigo
+        );
+      },
+      () => enviar(nome, email, null, null, null, codigo),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  function enviar(nome, email, lat, lon, acc, codigo) {
+    fetch('https://script.google.com/macros/s/AKfycbwJBp8_8red1jxRFa1xnlAokMZocfHSV6YU7sC_qhENuXZCnEB9orjar5-KAEynzHSuTA/exec', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, email, lat, lon, accuracy: acc, cupom: codigo })
+    }).catch(() => {});
+
+    document.getElementById('formFields').style.display = 'none';
+    document.getElementById('subtitle').style.display = 'none';
+    document.getElementById('nomeConfirmado').textContent = nome.split(' ')[0];
+    document.getElementById('codigoGerado').textContent = codigo;
+    document.getElementById('successWrap').classList.add('show');
+  }
+
+  document.getElementById('nome').addEventListener('input', function() {
+    this.classList.remove('invalid');
+    document.getElementById('nomeError').classList.remove('show');
+  });
+</script>
+</body>
+</html>
